@@ -1,0 +1,122 @@
+---
+import '../styles/global.css'
+import { getSettings } from '../lib/settings'
+
+interface Props {
+  title?: string
+  description?: string
+  image?: string
+  canonical?: string
+  ogType?: 'website' | 'article'
+}
+
+// Load live settings from Supabase (falls back to defaults if unavailable)
+const settings = await getSettings()
+
+const SITE_URL = (import.meta.env.NEXT_PUBLIC_SITE_URL || 'https://example.com').replace(/\/$/, '')
+const SITE_NAME = settings.site_title
+
+const {
+  title,
+  description = settings.site_description,
+  image,
+  canonical = Astro.url.href,
+  ogType = 'website',
+} = Astro.props
+
+const fullTitle = !title || title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`
+const ogImage = image ?? `${SITE_URL}/og-default.png`
+const googleAdsId = settings.google_ads_id?.trim()
+---
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Google Search Console -->
+<meta name="google-site-verification" content="p1Pr6RMWOa4n1k3PPqxTbfzqsgTM1xUgQ9SHlRJdYho" />
+    <!-- Open Graph -->
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="ar_SA" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={description} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Geo-targeting for Saudi Arabia -->
+    <meta name="geo.region" content="SA" />
+    <meta name="geo.placename" content="المملكة العربية السعودية" />
+    <meta name="geo.position" content="24.7136;46.6753" />
+    <meta name="ICBM" content="24.7136, 46.6753" />
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18515270711"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-18515270711');
+</script>
+<!-- Event snippet for عملية شراء (1) conversion page -->
+<script>
+  gtag('event', 'conversion', {
+      'send_to': 'AW-18515270711/3BELCNmDip4dELe44vxE',
+      'value': 1.0,
+      'currency': 'EGP',
+      'transaction_id': ''
+      // 'new_customer': true /* calculate dynamically, populate with true/false */,
+  });
+</script>
+
+    <!-- Cairo Font — async-loaded to eliminate render-blocking -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" />
+    </noscript>
+
+    <!-- Tab icon / favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/icon-512.png" sizes="512x512" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <title>{fullTitle}</title>
+    <slot name="head" />
+
+    <!-- Google Ads — injected automatically when google_ads_id is set in Site Settings -->
+    {googleAdsId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`}></script>
+        <script define:vars={{ googleAdsId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', googleAdsId);
+        </script>
+      </>
+    )}
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
