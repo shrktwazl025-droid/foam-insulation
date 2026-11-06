@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@saudi-leaks/shared/supabase/client'
-import type { SiteSettings, CustomSocialLink } from '@saudi-leaks/shared/types'
-import { DEFAULT_SETTINGS } from '@saudi-leaks/shared/types'
+import type { SiteSettings, CustomSocialLink, ColorSchemeId } from '@saudi-leaks/shared/types'
+import { DEFAULT_SETTINGS, COLOR_SCHEMES } from '@saudi-leaks/shared/types'
 import { triggerRevalidation } from '@/lib/revalidate'
 import ImageUpload from './ImageUpload'
 
@@ -232,6 +232,121 @@ export default function SettingsForm() {
               />
             </div>
           </div>
+
+          {/* ================= COLOR SCHEMES ================= */}
+          <div className="pt-6 border-t border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div>
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <span>🎨</span> نسق ألوان وهوية الموقع (Color Scheme)
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  اختر هوية الألوان المناسبة لموقعك. يتغير الموقع بالكامل (الترويسة، الفوتر، الأزرار، التدرجات، والبطاقات) تلقائياً ليتوافق مع السمة المختارة.
+                </p>
+              </div>
+              <span className="self-start sm:self-auto text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                {COLOR_SCHEMES.length} سمات متاحة
+              </span>
+            </div>
+
+            {/* Grid of Themes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+              {COLOR_SCHEMES.map((scheme) => {
+                const isSelected = (values.color_scheme || 'ocean') === scheme.id
+                return (
+                  <div
+                    key={scheme.id}
+                    onClick={() => handleChange('color_scheme', scheme.id)}
+                    className={`cursor-pointer rounded-2xl p-4 border-2 transition-all relative flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-blue-600 bg-blue-50/40 shadow-md ring-2 ring-blue-500/20'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-sm bg-white'
+                    }`}
+                  >
+                    {/* Header: Name + Badge */}
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-sm">
+                            {scheme.nameAr}
+                          </h4>
+                          <span className="text-[11px] text-gray-400 font-mono">{scheme.nameEn}</span>
+                        </div>
+                        {isSelected ? (
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs shadow-sm font-bold">
+                            ✓
+                          </span>
+                        ) : (
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-xs hover:border-gray-400" />
+                        )}
+                      </div>
+
+                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-3">
+                        {scheme.description}
+                      </p>
+                    </div>
+
+                    {/* Mini Live Preview Mockup */}
+                    <div className="rounded-xl overflow-hidden border border-gray-200/80 shadow-xs mb-3 text-[10px]">
+                      {/* Mini Header */}
+                      <div className="px-2.5 py-1.5 bg-white border-b border-gray-100 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: scheme.primary }} />
+                          <div className="w-10 h-1.5 rounded-full bg-gray-200" />
+                        </div>
+                        <div className="px-1.5 py-0.5 rounded text-white font-bold text-[9px]" style={{ backgroundColor: scheme.primary }}>
+                          اتصال
+                        </div>
+                      </div>
+
+                      {/* Mini Hero Gradient */}
+                      <div className="p-3 text-white flex flex-col justify-between min-h-[64px]" style={{ background: scheme.previewGradient }}>
+                        <div>
+                          <div className="w-16 h-2 rounded bg-white/80 mb-1" />
+                          <div className="w-24 h-1.5 rounded bg-white/50" />
+                        </div>
+                        <div className="flex items-center gap-1.5 pt-2">
+                          <div className="px-2 py-0.5 rounded-full text-[9px] font-bold text-white shadow-xs" style={{ backgroundColor: scheme.primary }}>
+                            زر رئيسي
+                          </div>
+                          <div className="w-3 h-3 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: scheme.accent }}>
+                            <span className="text-[8px]">★</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Palette Swatches */}
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100/80 text-xs">
+                      <span className="text-[11px] text-gray-400 font-medium">الألوان:</span>
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="w-4 h-4 rounded-full border border-black/10 shadow-xs"
+                          style={{ backgroundColor: scheme.primary }}
+                          title={`الأساسي: ${scheme.primary}`}
+                        />
+                        <span
+                          className="w-4 h-4 rounded-full border border-black/10 shadow-xs"
+                          style={{ backgroundColor: scheme.secondary }}
+                          title={`الداكن: ${scheme.secondary}`}
+                        />
+                        <span
+                          className="w-4 h-4 rounded-full border border-black/10 shadow-xs"
+                          style={{ backgroundColor: scheme.accent }}
+                          title={`التمييز: ${scheme.accent}`}
+                        />
+                        <span
+                          className="w-4 h-4 rounded-full border border-black/10 shadow-xs"
+                          style={{ backgroundColor: scheme.lightBg }}
+                          title={`الخلفية الفاتحة: ${scheme.lightBg}`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       )}
 
@@ -390,37 +505,144 @@ export default function SettingsForm() {
             />
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
-            {/* Address */}
-            <div>
-              <label htmlFor="setting-address" className="block text-sm font-bold text-gray-800 mb-1.5">
-                المدينة / المقر الجغرافي
-              </label>
-              <input
-                id="setting-address"
-                type="text"
-                value={values.address}
-                onChange={(e) => handleChange('address', e.target.value)}
-                placeholder="الرياض، المملكة العربية السعودية"
-                className={inputCls}
-              />
-              <p className="text-xs text-gray-400 mt-1">يُستخدم في وسم النطاق الجغرافي Geo-tagging ومحركات البحث.</p>
+          {/* Working Hours */}
+          <div>
+            <label htmlFor="setting-working_hours" className="block text-sm font-bold text-gray-800 mb-1.5">
+              ساعات وأوقات العمل
+            </label>
+            <input
+              id="setting-working_hours"
+              type="text"
+              value={values.working_hours}
+              onChange={(e) => handleChange('working_hours', e.target.value)}
+              placeholder="على مدار 24 ساعة — 7 أيام في الأسبوع"
+              className={inputCls}
+            />
+          </div>
+
+          {/* ================= LOCATION & GOOGLE MAPS ================= */}
+          <div className="pt-6 border-t border-gray-100">
+            <div className="mb-4">
+              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                <span>📍</span> قسم المقر وخريطة Google (صفحة تواصل معنا)
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                تحكم بالكامل في بطاقة المقر والخريطة التفاعلية ورابط Google Maps في صفحة تواصل معنا.
+              </p>
             </div>
 
-            {/* Working Hours */}
-            <div>
-              <label htmlFor="setting-working_hours" className="block text-sm font-bold text-gray-800 mb-1.5">
-                ساعات وأوقات العمل
+            <div className="grid sm:grid-cols-2 gap-5 mb-5">
+              {/* City Name */}
+              <div>
+                <label htmlFor="setting-location_city" className="block text-sm font-bold text-gray-800 mb-1.5">
+                  اسم المدينة / المقر الرئيسي <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="setting-location_city"
+                  type="text"
+                  value={values.location_city}
+                  onChange={(e) => handleChange('location_city', e.target.value)}
+                  placeholder="جدة (أو الرياض، الدمام، مكة...)"
+                  className={inputCls}
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">يتحكم في عنوان "مقرّنا في [المدينة]" والشارة العلوية في صفحة التواصل.</p>
+              </div>
+
+              {/* Detailed Address */}
+              <div>
+                <label htmlFor="setting-address" className="block text-sm font-bold text-gray-800 mb-1.5">
+                  العنوان التفصيلي للمقر
+                </label>
+                <input
+                  id="setting-address"
+                  type="text"
+                  value={values.address}
+                  onChange={(e) => handleChange('address', e.target.value)}
+                  placeholder="جدة، المملكة العربية السعودية"
+                  className={inputCls}
+                />
+                <p className="text-xs text-gray-400 mt-1">يظهر في بطاقة العنوان الجغرافي وبيانات محركات البحث (SEO).</p>
+              </div>
+            </div>
+
+            {/* Location Description */}
+            <div className="mb-5">
+              <label htmlFor="setting-location_description" className="block text-sm font-bold text-gray-800 mb-1.5">
+                النص الوصفي للمقر والزيارات
               </label>
-              <input
-                id="setting-working_hours"
-                type="text"
-                value={values.working_hours}
-                onChange={(e) => handleChange('working_hours', e.target.value)}
-                placeholder="على مدار 24 ساعة — 7 أيام في الأسبوع"
+              <textarea
+                id="setting-location_description"
+                rows={2}
+                value={values.location_description}
+                onChange={(e) => handleChange('location_description', e.target.value)}
+                placeholder="تواصل معنا لتحديد موعد زيارة ومعاينة موقعك مجاناً."
                 className={inputCls}
               />
+              <p className="text-xs text-gray-400 mt-1">يظهر كفقرة تعريفية تحت عنوان المقر في صفحة التواصل.</p>
             </div>
+
+            <div className="grid sm:grid-cols-2 gap-5 mb-5">
+              {/* Google Maps Link */}
+              <div>
+                <label htmlFor="setting-google_maps_url" className="block text-sm font-bold text-gray-800 mb-1.5">
+                  رابط خرائط Google المباشر (Google Maps URL)
+                </label>
+                <input
+                  id="setting-google_maps_url"
+                  type="url"
+                  dir="ltr"
+                  value={values.google_maps_url}
+                  onChange={(e) => handleChange('google_maps_url', e.target.value)}
+                  placeholder="https://maps.app.goo.gl/... أو https://google.com/maps/..."
+                  className={`${inputCls} text-left font-mono text-xs`}
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  رابط زر <strong>"افتح في خرائط Google"</strong> لتوجيه العميل مباشرة لتطبيق الخرائط.
+                </p>
+              </div>
+
+              {/* Google Maps Embed URL */}
+              <div>
+                <label htmlFor="setting-google_maps_embed_url" className="block text-sm font-bold text-gray-800 mb-1.5">
+                  رابط تضمين الخريطة (Google Maps Embed)
+                </label>
+                <input
+                  id="setting-google_maps_embed_url"
+                  type="text"
+                  dir="ltr"
+                  value={values.google_maps_embed_url}
+                  onChange={(e) => {
+                    const raw = e.target.value
+                    const match = raw.match(/src=["'](.*?)["']/)
+                    handleChange('google_maps_embed_url', match ? match[1] : raw)
+                  }}
+                  placeholder="https://www.google.com/maps?q=... أو الصق كود <iframe> كاملاً"
+                  className={`${inputCls} text-left font-mono text-xs`}
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  رابط الخريطة التفاعلية (يمكنك لصق كود <code>&lt;iframe&gt;</code> من خيار "مشاركة &gt; تضمين خريطة" وسيُستخرج الرابط تلقائياً).
+                </p>
+              </div>
+            </div>
+
+            {/* Live Map Preview inside Admin */}
+            {values.google_maps_embed_url && (
+              <div className="mt-4 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                <div className="px-3.5 py-2 bg-gray-100 border-b border-gray-200 text-xs font-bold text-gray-700 flex items-center justify-between">
+                  <span>معاينة حية للخريطة الحالية</span>
+                  <span className="text-[11px] text-green-600 font-normal">متصلة وجاهزة</span>
+                </div>
+                <div className="h-48 w-full">
+                  <iframe
+                    src={values.google_maps_embed_url}
+                    title="معاينة الخريطة"
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

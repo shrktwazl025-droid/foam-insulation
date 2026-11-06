@@ -25,6 +25,7 @@ export async function getSettings(): Promise<SiteSettings> {
       // Brand & Media
       logo_url:                 map['logo_url']                 ?? DEFAULTS.logo_url,
       favicon_url:              map['favicon_url']              ?? DEFAULTS.favicon_url,
+      color_scheme:             map['color_scheme']             ?? DEFAULTS.color_scheme,
 
       // SEO & General
       site_title:               map['site_title']               ?? DEFAULTS.site_title,
@@ -38,6 +39,10 @@ export async function getSettings(): Promise<SiteSettings> {
       whatsapp:                 map['whatsapp']                 ?? DEFAULTS.whatsapp,
       email:                    map['email']                    ?? DEFAULTS.email,
       address:                  map['address']                  ?? DEFAULTS.address,
+      location_city:            map['location_city']            ?? DEFAULTS.location_city,
+      location_description:     map['location_description']     ?? DEFAULTS.location_description,
+      google_maps_url:          map['google_maps_url']          ?? DEFAULTS.google_maps_url,
+      google_maps_embed_url:    map['google_maps_embed_url']    ?? DEFAULTS.google_maps_embed_url,
       working_hours:            map['working_hours']            ?? DEFAULTS.working_hours,
 
       // Social Links
